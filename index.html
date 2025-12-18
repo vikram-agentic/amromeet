@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amromeet - Premium Scheduling</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2275%22 font-size=%2275%22>📅</text></svg>" />
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Outfit', 'sans-serif'],
+              display: ['Space Grotesk', 'sans-serif'],
+            },
+            colors: {
+              background: 'rgb(var(--tw-background) / <alpha-value>)',
+              foreground: 'rgb(var(--tw-foreground) / <alpha-value>)',
+              card: 'rgb(var(--tw-card) / <alpha-value>)',
+              primary: 'rgb(var(--tw-primary) / <alpha-value>)',
+              secondary: 'rgb(var(--tw-secondary) / <alpha-value>)',
+              destructive: 'rgb(var(--tw-destructive) / <alpha-value>)',
+              border: 'rgb(var(--tw-border) / <alpha-value>)',
+              muted: 'rgb(var(--tw-muted) / <alpha-value>)',
+              amro: {
+                50: '#f0fdfa',
+                100: '#ccfbf1',
+                500: '#14b8a6',
+                600: '#0d9488',
+                900: '#134e4a',
+                dark: '#0f172a',
+                light: '#f8fafc',
+              }
+            },
+            animation: {
+              'blob': 'blob 7s infinite',
+            },
+            keyframes: {
+              blob: {
+                '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Light Theme - Default */
+      :root {
+        --tw-background: 255 255 255;
+        --tw-foreground: 15 23 42;
+        --tw-card: 248 250 252;
+        --tw-primary: 20 184 166;
+        --tw-secondary: 226 232 240;
+        --tw-destructive: 239 68 68;
+        --tw-border: 226 232 240;
+        --tw-muted: 148 163 184;
+      }
+
+      /* Dark Theme */
+      html.dark {
+        --tw-background: 15 23 42;
+        --tw-foreground: 241 245 249;
+        --tw-card: 30 41 59;
+        --tw-primary: 20 184 166;
+        --tw-secondary: 51 65 85;
+        --tw-destructive: 239 68 68;
+        --tw-border: 51 65 85;
+        --tw-muted: 100 116 139;
+      }
+
+      body {
+        background-color: rgb(var(--tw-background));
+        color: rgb(var(--tw-foreground));
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgb(var(--tw-border));
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgb(var(--tw-muted));
+      }
+
+      /* Gradient text */
+      .gradient-text {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Gradient button */
+      .gradient-hero {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        color: white;
+      }
+
+      .gradient-hero:hover {
+        opacity: 0.9;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "date-fns": "https://esm.sh/date-fns@^4.1.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.23.26",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
+    "jose": "https://esm.sh/jose@5.2.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-background text-foreground antialiased overflow-x-hidden selection:bg-primary selection:text-white">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
