@@ -70,8 +70,18 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
     try {
       setEventLoading(true);
       console.log('Fetching event for username:', username);
+
+      // Determine the API base URL
+      const isProduction = window.location.hostname !== 'localhost' && !window.location.hostname.startsWith('127.');
+      const apiBaseUrl = isProduction
+        ? 'https://amromeet-backend.vercel.app'
+        : '';
+
       // The /api/embed/:username endpoint returns public event data - no auth needed
-      const response = await fetch(`/api/embed/${username}`);
+      const url = `${apiBaseUrl}/api/embed/${username}`;
+      console.log('Fetching from:', url);
+
+      const response = await fetch(url);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
