@@ -18,7 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Clock, Video, CheckCircle, Loader2, AlertCircle, Copy } from 'lucide-react';
 import { getAvailableSlots } from '../services/meetService';
 import { apiPost } from '../utils/api';
-import { useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 interface CalendarWidgetProps {
   embedded?: boolean;
@@ -33,7 +33,7 @@ interface EventType {
 }
 
 export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false }) => {
-  const [searchParams] = useSearchParams();
+  const params = useParams();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -45,7 +45,8 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
   const [event, setEvent] = useState<EventType | null>(null);
   const [eventLoading, setEventLoading] = useState(true);
 
-  const username = searchParams.get('username') || window.location.pathname.split('/').pop();
+  // Extract username from route params or window location
+  const username = params.username || window.location.pathname.split('/').pop();
 
   // Fetch event details when component mounts
   useEffect(() => {
@@ -55,16 +56,35 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
   }, [username]);
 
   const fetchEvent = async () => {
+    if (!username) {
+      console.error('No username provided');
+      setErrorMessage('Username not found');
+      setEventLoading(false);
+      return;
+    }
+
     try {
       setEventLoading(true);
-      // The /api/embed endpoint returns public event data - no auth needed
-      const response = await fetch(`/api/embed?username=${username}`);
-      if (!response.ok) throw new Error('Failed to fetch event');
+      console.log('Fetching event for username:', username);
+      // The /api/embed/:username endpoint returns public event data - no auth needed
+      const response = await fetch(`/api/embed/${username}`);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch event (${response.status})`);
+      }
+
       const data = await response.json();
-      setEvent(data.event);
+      console.log('Event data received:', data);
+
+      if (data.event) {
+        setEvent(data.event);
+      } else {
+        throw new Error('No event data in response');
+      }
     } catch (error) {
       console.error('Error fetching event:', error);
-      setErrorMessage('Could not load event details');
+      setErrorMessage(error instanceof Error ? error.message : 'Could not load event details');
     } finally {
       setEventLoading(false);
     }
@@ -132,6 +152,27 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
     navigator.clipboard.writeText(meetingLink);
     alert('Link copied to clipboard');
   };
+
+  // Show loading state
+  if (eventLoading) {
+    return (
+      <div className={`w-full max-w-5xl mx-auto ${embedded ? 'h-full' : 'min-h-[600px]'} flex flex-col items-center justify-center bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800`}>
+        <Loader2 size={48} className="text-amro-500 mb-4 animate-spin" />
+        <p className="text-slate-600 dark:text-slate-400">Loading event details...</p>
+      </div>
+    );
+  }
+
+  // Show error if loading failed
+  if (errorMessage && !event) {
+    return (
+      <div className={`w-full max-w-5xl mx-auto ${embedded ? 'h-full' : 'min-h-[600px]'} flex flex-col items-center justify-center bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 p-8`}>
+        <AlertCircle size={48} className="text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Error Loading Event</h2>
+        <p className="text-slate-600 dark:text-slate-400 text-center">{errorMessage}</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`w-full max-w-5xl mx-auto ${embedded ? 'h-full' : 'min-h-[600px]'} flex flex-col md:flex-row bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800`}>
