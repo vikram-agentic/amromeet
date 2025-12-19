@@ -1,28 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  format, 
-  addMonths, 
-  subMonths, 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  isSameMonth, 
-  isSameDay, 
-  addDays, 
+import {
+  format,
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  isSameMonth,
+  isSameDay,
+  addDays,
   eachDayOfInterval,
   isToday,
   isBefore
 } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Clock, Video, CheckCircle, Loader2, AlertCircle, Copy } from 'lucide-react';
-import { getAvailableSlots, scheduleMeeting } from '../services/meetService';
+import { getAvailableSlots } from '../services/meetService';
+import { apiPost } from '../utils/api';
+import { useSearchParams } from 'react-router-dom';
 
 interface CalendarWidgetProps {
   embedded?: boolean;
 }
 
+interface EventType {
+  id: string;
+  name: string;
+  description: string;
+  durationMinutes: number;
+  slug: string;
+}
+
 export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false }) => {
+  const [searchParams] = useSearchParams();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -31,6 +42,33 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
   const [formData, setFormData] = useState({ name: '', email: '', reason: '' });
   const [meetingLink, setMeetingLink] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [event, setEvent] = useState<EventType | null>(null);
+  const [eventLoading, setEventLoading] = useState(true);
+
+  const username = searchParams.get('username') || window.location.pathname.split('/').pop();
+
+  // Fetch event details when component mounts
+  useEffect(() => {
+    if (username) {
+      fetchEvent();
+    }
+  }, [username]);
+
+  const fetchEvent = async () => {
+    try {
+      setEventLoading(true);
+      // The /api/embed endpoint returns public event data - no auth needed
+      const response = await fetch(`/api/embed?username=${username}`);
+      if (!response.ok) throw new Error('Failed to fetch event');
+      const data = await response.json();
+      setEvent(data.event);
+    } catch (error) {
+      console.error('Error fetching event:', error);
+      setErrorMessage('Could not load event details');
+    } finally {
+      setEventLoading(false);
+    }
+  };
 
   // Calendar Logic
   const monthStart = startOfMonth(currentDate);
@@ -54,19 +92,36 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
-    
-    if (selectedDate && selectedSlot) {
-      const response = await scheduleMeeting({
-        ...formData,
-        date: selectedDate,
-        timeSlot: selectedSlot
-      });
-      
-      if (response.success && response.meetLink) {
-        setMeetingLink(response.meetLink);
+
+    if (selectedDate && selectedSlot && event) {
+      try {
+        // Combine date and time slot
+        const [hours, minutes] = selectedSlot.split(':').map(Number);
+        const scheduledAt = new Date(selectedDate);
+        scheduledAt.setHours(hours, minutes, 0, 0);
+
+        // Call backend API to create booking
+        // This will trigger Google Meet creation and email sending on the backend
+        const response = await apiPost('/bookings', {
+          eventTypeId: event.id,
+          guestName: formData.name,
+          guestEmail: formData.email,
+          guestTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          scheduledAt: scheduledAt.toISOString(),
+          endTime: new Date(scheduledAt.getTime() + event.durationMinutes * 60000).toISOString(),
+          description: formData.reason
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Booking failed');
+        }
+
+        const data = await response.json();
+        setMeetingLink(data.booking.googleMeetLink || 'https://meet.google.com');
         setView('success');
-      } else {
-        setErrorMessage(response.message || 'An unknown error occurred.');
+      } catch (error) {
+        setErrorMessage(error instanceof Error ? error.message : 'An error occurred');
         setView('error');
       }
     }
@@ -89,24 +144,24 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amro-500 to-purple-600 mb-6 flex items-center justify-center text-white shadow-lg shadow-amro-500/20">
              <Video size={24} />
           </div>
-          <h3 className="text-slate-500 dark:text-slate-400 font-medium text-sm uppercase tracking-wider mb-2">Amromeet Consultation</h3>
+          <h3 className="text-slate-500 dark:text-slate-400 font-medium text-sm uppercase tracking-wider mb-2">Amromeet</h3>
           <h1 className="text-3xl font-display font-bold text-slate-900 dark:text-white mb-6 leading-tight">
-            Strategic Discovery Call
+            {eventLoading ? 'Loading...' : event?.name || 'Event'}
           </h1>
-          
+
           <div className="space-y-4">
             <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
               <Clock className="text-amro-500" size={20} />
-              <span className="font-medium">30 Minutes</span>
+              <span className="font-medium">{event?.durationMinutes || 30} Minutes</span>
             </div>
             <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
               <Video className="text-amro-500" size={20} />
               <span className="font-medium">Google Meet</span>
             </div>
           </div>
-          
+
           <p className="mt-8 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-            Book a premium consultation slot. We'll discuss your requirements and how we can integrate our solutions. A Google Meet link will be generated automatically.
+            {event?.description || 'Book a consultation slot. A Google Meet link will be generated automatically.'}
           </p>
         </div>
         
