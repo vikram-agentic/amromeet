@@ -136,18 +136,30 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
 
         // Call backend API to create booking
         // This will trigger Google Meet creation and email sending on the backend
-        const response = await apiPost('/bookings', {
+        const bookingData = {
           event_type_id: event.id,
           guest_name: formData.name,
           guest_email: formData.email,
           guest_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           scheduled_at: scheduledAt.toISOString(),
           description: formData.reason
-        });
+        };
+
+        console.log('Sending booking request:', bookingData);
+        const response = await apiPost('/bookings', bookingData);
 
         if (!response.ok) {
           const error = await response.json();
-          throw new Error(error.error || 'Booking failed');
+          console.error('Booking error response:', error);
+
+          // Handle validation errors (array of field errors)
+          if (error.errors && Array.isArray(error.errors)) {
+            const fieldErrors = error.errors.map((e: any) => `${e.field}: ${e.message}`).join(', ');
+            throw new Error(`Validation failed: ${fieldErrors}`);
+          }
+
+          // Handle single error message
+          throw new Error(error.error || error.message || 'Booking failed');
         }
 
         const data = await response.json();
