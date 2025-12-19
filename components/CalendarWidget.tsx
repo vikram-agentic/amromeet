@@ -46,7 +46,11 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
   const [eventLoading, setEventLoading] = useState(true);
 
   // Extract username from route params or window location
-  const username = params.username || window.location.pathname.split('/').pop();
+  // Remove UUID suffix if present (e.g., "agentic-ai-amro-4b0dab37" -> "agentic-ai-amro")
+  let rawUsername = params.username || window.location.pathname.split('/').pop() || '';
+  const username = rawUsername.lastIndexOf('-') > 0 && rawUsername.split('-').pop()?.length === 8
+    ? rawUsername.substring(0, rawUsername.lastIndexOf('-'))
+    : rawUsername;
 
   // Fetch event details when component mounts
   useEffect(() => {
