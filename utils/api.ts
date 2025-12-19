@@ -1,12 +1,11 @@
 // API client with environment-aware base URL
 const getApiUrl = () => {
   // In development, the proxy handles /api routes
-  // In production, use the environment variable
+  // In production, use the environment variable (already includes /api in the proxy)
   if (import.meta.env.DEV) {
     return '/api';
   }
-  const baseUrl = import.meta.env.VITE_API_URL || 'https://amromeet-backend.vercel.app';
-  return `${baseUrl}/api`;
+  return import.meta.env.VITE_API_URL || 'https://amromeet-backend.vercel.app';
 };
 
 export const apiCall = async (
