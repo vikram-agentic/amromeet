@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, AlertCircle, Loader } from 'lucide-react';
 import { Layout } from '../components/Layout';
+import { apiPost } from '../utils/api';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,11 +17,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+      const response = await apiPost('/auth/login', { email, password });
 
       if (!response.ok) {
         const data = await response.json();

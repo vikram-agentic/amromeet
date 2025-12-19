@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light Theme - Default */
+:root {
+  --tw-background: 255 255 255;
+  --tw-foreground: 15 23 42;
+  --tw-card: 248 250 252;
+  --tw-primary: 20 184 166;
+  --tw-secondary: 226 232 240;
+  --tw-destructive: 239 68 68;
+  --tw-border: 226 232 240;
+  --tw-muted: 148 163 184;
+}
+
+/* Dark Theme */
+html.dark {
+  --tw-background: 15 23 42;
+  --tw-foreground: 241 245 249;
+  --tw-card: 30 41 59;
+  --tw-primary: 20 184 166;
+  --tw-secondary: 51 65 85;
+  --tw-destructive: 239 68 68;
+  --tw-border: 51 65 85;
+  --tw-muted: 100 116 139;
+}
+
+body {
+  background-color: rgb(var(--tw-background));
+  color: rgb(var(--tw-foreground));
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--tw-border));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--tw-muted));
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient button */
+.gradient-hero {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  color: white;
+}
+
+.gradient-hero:hover {
+  opacity: 0.9;
+}

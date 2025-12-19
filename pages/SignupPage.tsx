@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, Building2, AlertCircle, Loader, CheckCircle } from 'lucide-react';
 import { Layout } from '../components/Layout';
+import { apiPost } from '../utils/api';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -45,16 +46,12 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          companyName: formData.companyName
-        })
+      const response = await apiPost('/auth/signup', {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        companyName: formData.companyName
       });
 
       if (!response.ok) {
