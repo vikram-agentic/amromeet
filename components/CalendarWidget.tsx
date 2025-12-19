@@ -137,12 +137,11 @@ export const CalendarWidget: React.FC<CalendarWidgetProps> = ({ embedded = false
         // Call backend API to create booking
         // This will trigger Google Meet creation and email sending on the backend
         const response = await apiPost('/bookings', {
-          eventTypeId: event.id,
-          guestName: formData.name,
-          guestEmail: formData.email,
-          guestTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          scheduledAt: scheduledAt.toISOString(),
-          endTime: new Date(scheduledAt.getTime() + event.durationMinutes * 60000).toISOString(),
+          event_type_id: event.id,
+          guest_name: formData.name,
+          guest_email: formData.email,
+          guest_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          scheduled_at: scheduledAt.toISOString(),
           description: formData.reason
         });
 
