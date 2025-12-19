@@ -5,7 +5,8 @@ const getApiUrl = () => {
   if (import.meta.env.DEV) {
     return '/api';
   }
-  return import.meta.env.VITE_API_URL || 'https://amromeet-backend.vercel.app/api';
+  const baseUrl = import.meta.env.VITE_API_URL || 'https://amromeet-backend.vercel.app';
+  return `${baseUrl}/api`;
 };
 
 export const apiCall = async (
