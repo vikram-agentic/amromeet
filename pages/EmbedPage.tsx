@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Copy, Check, Code, ExternalLink, Loader } from 'lucide-react';
 import { Layout } from '../components/Layout';
+import { apiGet } from '../utils/api';
 
 interface EventType {
   id: string;
@@ -23,10 +24,7 @@ export default function EmbedPage() {
 
   const fetchEvents = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/events', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiGet('/events');
 
       if (!response.ok) throw new Error('Failed to fetch events');
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Bell, Palette, Loader, Save, AlertCircle } from 'lucide-react';
 import { Layout } from '../components/Layout';
+import { apiGet, apiPut } from '../utils/api';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -43,10 +44,7 @@ export default function SettingsPage() {
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/users/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiGet('/users/profile');
 
       if (!response.ok) throw new Error('Failed to fetch profile');
 
@@ -69,10 +67,7 @@ export default function SettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/users/settings', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiGet('/users/settings');
 
       if (!response.ok) throw new Error('Failed to fetch settings');
 
@@ -96,22 +91,14 @@ export default function SettingsPage() {
     setMessage(null);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/users/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          firstName: profile.firstName,
-          lastName: profile.lastName,
-          companyName: profile.companyName,
-          phone: profile.phone,
-          bio: profile.bio,
-          website: profile.website,
-          timezone: profile.timezone
-        })
+      const response = await apiPut('/users/profile', {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        companyName: profile.companyName,
+        phone: profile.phone,
+        bio: profile.bio,
+        website: profile.website,
+        timezone: profile.timezone
       });
 
       if (!response.ok) throw new Error('Failed to save profile');
@@ -130,20 +117,12 @@ export default function SettingsPage() {
     setMessage(null);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/users/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          theme: preferences.theme,
-          notification_email: preferences.notificationEmail,
-          notification_sms: preferences.notificationSms,
-          notification_push: preferences.notificationPush,
-          default_meeting_duration: preferences.defaultMeetingDuration
-        })
+      const response = await apiPut('/users/settings', {
+        theme: preferences.theme,
+        notification_email: preferences.notificationEmail,
+        notification_sms: preferences.notificationSms,
+        notification_push: preferences.notificationPush,
+        default_meeting_duration: preferences.defaultMeetingDuration
       });
 
       if (!response.ok) throw new Error('Failed to save preferences');

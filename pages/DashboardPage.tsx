@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, BookOpen, Users, TrendingUp, Plus, Settings, LogOut, Code } from 'lucide-react';
 import { Layout } from '../components/Layout';
+import { apiGet } from '../utils/api';
 
 interface AnalyticsData {
   bookings: {
@@ -49,11 +50,7 @@ export default function DashboardPage() {
 
   const fetchAnalytics = async (token: string) => {
     try {
-      const response = await fetch('/api/analytics/dashboard', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await apiGet('/analytics/dashboard');
 
       if (!response.ok) throw new Error('Failed to fetch analytics');
 

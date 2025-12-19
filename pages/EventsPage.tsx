@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Copy, Loader } from 'lucide-react';
 import { Layout } from '../components/Layout';
+import { apiGet, apiPost } from '../utils/api';
 
 interface EventType {
   id: string;
@@ -35,10 +36,7 @@ export default function EventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/events', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiGet('/events');
 
       if (!response.ok) throw new Error('Failed to fetch events');
 
@@ -53,20 +51,12 @@ export default function EventsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
     setErrors({});
 
     console.log('Form data being sent:', formData);
 
     try {
-      const response = await fetch('/api/events', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await apiPost('/events', formData);
 
       const data = await response.json();
       console.log('Backend response:', data);
